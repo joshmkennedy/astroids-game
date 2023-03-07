@@ -1,49 +1,86 @@
-import type { GameObject } from "./gameObject"
+import Keyboard from "./Keyboard";
+import type { GameObject } from "./gameObject";
 
 export default class Game {
-	canvasEl:HTMLCanvasElement
-	ctx:CanvasRenderingContext2D | null
-	shouldEnd:boolean = false
-	objects:GameObject[]
+  canvasEl: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D | null;
+  shouldEnd: boolean = false;
+  lastTime: number | undefined;
+  objects: GameObject[];
+  interval = 6;
+  keys: Keyboard;
+  aspectRatio: number;
+  // store:Store
+  constructor(
+    canvasEl: HTMLCanvasElement,
+    aspectRatio: number,
+    objects: GameObject[]
+  ) {
+    this.canvasEl = canvasEl;
 
-	constructor(canvasEl:HTMLCanvasElement, objects: GameObject[]){
-		this.canvasEl = canvasEl
-		this.canvasEl.height = window.innerHeight
-		this.canvasEl.width = window.innerWidth
+    const dpi = window.devicePixelRatio;
+    this.ctx = this.canvasEl.getContext("2d");
+    this.ctx?.scale(dpi, dpi);
+    this.aspectRatio = aspectRatio
+    this.canvasEl.width = window.innerWidth;
+    this.canvasEl.height = window.innerHeight * this.aspectRatio;
 
-		const dpi = window.devicePixelRatio;
-		this.ctx = this.canvasEl.getContext('2d')
-		this.ctx?.scale(dpi, dpi)
 
-		this.objects = objects
-	}
+    // this.store = new Store();
+    this.keys = new Keyboard();
 
-	start(){
-		// doAction('before_loop')
-		
-		//start loop
-		requestAnimationFrame(this.loop)
-	}
+    this.objects = objects;
+  }
 
-	loop = ( delta: number )=>{
-		console.log('loop run start')	
-		if(!this.ctx) return
-		const req = requestAnimationFrame(this.loop)
+  start() {
+    // doAction('before_loop')
 
-		this.update(delta)
+    //start loop
+    requestAnimationFrame(this.loop);
+  }
 
-		// this.draw()
+  //Need to be a arrow function so that we can
+  //retain this to be Game when called from requestAnimationFrame
+  loop = (delta: number) => {
+    const req = requestAnimationFrame(this.loop);
+    // console.log("loop run start");
+    if (!this.ctx) return;
+    if (!this.lastTime) {
+      this.lastTime = delta;
+    }
+    const elapsedTime = delta - this.lastTime;
+    if (elapsedTime > this.interval) {
+      this.ctx.clearRect(
+        0,
+        0,
+        this.canvasEl.width + 1,
+        this.canvasEl.height + 17
+      );
 
-		if(this.shouldEnd){
-			cancelAnimationFrame(req)
-		}
-		console.log('loop run end')
-	}
+      this.update(this);
 
-	update(delta:number){
-		for ( let i = 0; i < this.objects.length; i++ ) {
-			const object = this.objects[i]
-			object.update(delta)
-		}
-	}
+      this.draw(this.ctx);
+
+      this.lastTime = delta;
+    }
+
+    if (this.shouldEnd) {
+      cancelAnimationFrame(req);
+    }
+    // console.log("loop run end");
+  };
+
+  update(game: Game) {
+    for (let i = 0; i < this.objects.length; i++) {
+      const object = this.objects[i];
+      object.update(game);
+    }
+  }
+
+  draw(ctx: CanvasRenderingContext2D) {
+    for (let i = 0; i < this.objects.length; i++) {
+      const object = this.objects[i];
+      object.draw(ctx);
+    }
+  }
 }

@@ -1,4 +1,6 @@
+import type Game from "./game"
+
 export type GameObject = {
-	update(delta:number):void;
-	draw(ctx: ):void;
+	update(game:Game):void;
+	draw(ctx: CanvasRenderingContext2D ):void;
 }

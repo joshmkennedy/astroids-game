@@ -5,8 +5,6 @@ body * {
   box-sizing:inherit;
 }
 #canvas{
-  /* width:100vw; */
-  /* height:100vh; */
   border:1px solid red;
   position:fixed;
   top:0;
