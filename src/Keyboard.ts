@@ -15,6 +15,7 @@ export default class Keyboard {
 	}
 
 	addKeys = (e:KeyboardEvent)=>{
+		console.log(e)
 		if(!this.modifiers.includes(e.key.toLowerCase())){
 			this.keysPressed.add(e.key.toLowerCase())
 		}
@@ -27,16 +28,25 @@ export default class Keyboard {
 		if(e.metaKey){
 			this.keysPressed.add('meta')
 		}
-
-		console.log([...this.keysPressed])
 	}
 
 	removeKeys = (e:KeyboardEvent)=>{
-		console.log(e)
 		this.keysPressed.delete(e.key.toLowerCase())
 		if(this.modifiers.includes(e.key.toLowerCase())){
 			this.keysPressed.clear()
 		}
-		console.log([...this.keysPressed])
+	}
+
+	leftDirection(){
+		return this.has("a") || this.has("arrowleft")
+	}
+	rightDirection(){
+		return this.has("d") || this.has("arrowright")
+	}
+	upDirection(){
+		return this.has("w") || this.has("arrowup")
+	}
+	downDirection(){
+		return this.has("s") || this.has("arrowdown")
 	}
 }

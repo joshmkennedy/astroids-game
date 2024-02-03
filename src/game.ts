@@ -34,7 +34,11 @@ export default class Game {
 
   start() {
     // doAction('before_loop')
-
+    for( let object of this.objects ){
+      if('init' in object){
+        object.init?.(this) 
+      }
+    }
     //start loop
     requestAnimationFrame(this.loop);
   }
