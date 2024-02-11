@@ -1,12 +1,24 @@
 body{
   box-sizing:border-box;
+	background:black;
 }
-body * {
+body *{
   box-sizing:inherit;
 }
 #canvas{
-  border:1px solid red;
   position:fixed;
   top:0;
   left:0;
+}
+
+#stats {
+	padding:.5rem;
+	position:fixed;
+	top:0;
+	z-index:99;
+	left:0;
+	color:white;
+	display:flex;
+	width:100%;
+	justify-content:end;
 }

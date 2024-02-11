@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body, html {
+	@apply bg-slate-950 text-white;
+}
+.glow-heading {
+	text-shadow: 0 0 20px currentColor;
+}
