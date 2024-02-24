@@ -13,7 +13,8 @@
 		class="text-white text-center p-3 flex flex-col gap-10 justify-center items-center h-full"
 	>
 		<header class="-mt-5 ">
-			<h2 class="font-bold uppercase text-6xl mb-4 text-pink-500 glow-heading">Crashed!</h2>
+			<h2 class="font-bold rover-font game-title uppercase text-6xl mb-4 text-pink-500 glow-heading"
+			style="--title-size:60px">Crashed!</h2>
 			<p>Your ship was destroyed by an astroid</p>
 			<p />
 		</header>

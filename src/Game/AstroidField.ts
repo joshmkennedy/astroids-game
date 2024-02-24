@@ -76,16 +76,6 @@ export default class AstroidField {
 
 				let startX = w/2
 				let startY = h/2
-				if(angle > 180){
-					startX-=astroidSize
-				} else{
-					startX += astroidSize
-				}
-				if(angle < 90 || angle > 210){
-					startY-=astroidSize
-				} else{
-					startY +=astroidSize
-				}
 				astroid.spawn(diagonalPoint({ x: startX, y: startY }, w / 2 + astroidSize, angle), {
 					x: w / 2 - astroidSize / 2,
 					y: h / 2 - astroidSize / 2,

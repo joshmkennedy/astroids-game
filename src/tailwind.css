@@ -4,7 +4,53 @@
 
 body, html {
 	@apply bg-slate-950 text-white;
+	--cyan:#22D3EE;
+	--pink:#FA00FF;
+}
+
+@font-face {
+  font-family: "rover-explore";
+  src: url(/ROVEREXPLORE.woff);
+}
+@property --stop {
+  syntax: "<color>";
+  initial-value: #F472B6;
+  inherits: true;
+}
+.game-title{
+	font-size: var(--title-size, 100px);
+	-webkit-text-fill-color:black;
+	-webkit-text-stroke:.5px;
+	-webkit-text-stroke-color:var(--color);
+	text-shadow:0 0 10px var(--color);
+	color:black;	
+	animation:title-animation 5s linear infinite alternate;
+}
+@media(max-width:763px){
+	.game-title{
+		font-size:60px;
+	}
 }
 .glow-heading {
 	text-shadow: 0 0 20px currentColor;
+}
+.damaged-glow{
+	background-image:radial-gradient(circle at center, transparent 50%, #ff000066 100%);
+}
+
+.rover-font{
+	font-family:"rover-explore", sans-serif;
+}
+
+@keyframes title-animation{
+	from {
+
+	-webkit-text-stroke-color:var(--cyan);
+	text-shadow:0 0 10px var(--cyan);
+	}
+	to{
+		--color:blue;
+	-webkit-text-stroke-color:var(--pink);
+	text-shadow:0 0 10px var(--pink);
+	}
 }

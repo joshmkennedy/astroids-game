@@ -2,7 +2,7 @@ import Game from "./game";
 
 export default class Soundboard {
 	sounds: Record<string, HTMLAudioElement>;
-	isOn: boolean = false;
+	isOn: boolean = true;
 	constructor() {
 		this.sounds = {
 			shoot: new Audio("/sounds/gun-blast.wav"),

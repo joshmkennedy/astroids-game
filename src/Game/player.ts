@@ -1,10 +1,10 @@
 import Astroid from "./Astroid";
 import BulletPool from "./bulletPool";
 import type Game from "./game";
-import GameArea from "./GameArea";
 import { GameObject } from "./gameObject";
 import Shape from "./Shape";
 import { PlayerStats, PlayerStatsT } from "../App/store";
+import { ShipUpgradesT,ShipUpgrades } from "../storage/shipAttributes";
 
 export default class Player extends Shape {
 	direction: "left" | "right" | "up" | "down";
@@ -15,10 +15,7 @@ export default class Player extends Shape {
 	image: HTMLImageElement;
 	bulletPool: BulletPool;
 	money: number;
-	spritesPos: Record<
-		"up" | "down" | "left" | "right",
-		{ w: number; h: number }
-	>;
+	attributes: ShipUpgradesT
 	constructor() {
 		super();
 		//these are base attributes all object will probably need
@@ -34,22 +31,11 @@ export default class Player extends Shape {
 		this.image.src = "/sprites/ship1.png";
 		this.health = this.startHealth;
 		this.money = 0;
-
-		this.spritesPos = {
-			right: { h: -18, w: 5 },
-			left: { h: -18, w: this.size.w + 20 },
-			up: { h: 16, w: 5 },
-			down: { h: 16, w: 5 },
-		};
+		this.attributes = {} as ShipUpgradesT;
 	}
 	init(game: Game) {
+		this.loadAttributes();
 		this.reset();
-		const gameArea = game.objects.find(
-			(object) => object instanceof GameArea,
-		) as GameArea;
-		if (!gameArea) {
-			throw new Error("cant find gameArea object");
-		}
 
 		this.pos = {
 			x: game.canvasEl.width / 2 - this.size.w / 2,
@@ -59,8 +45,8 @@ export default class Player extends Shape {
 		game.events.subscribe("ASTROID_DESTROYED", this.incMoney);
 	}
 
-	cleanUp(_:Game){
-		this.reset()
+	cleanUp(_: Game) {
+		this.reset();
 	}
 
 	update(game: Game) {
@@ -74,10 +60,9 @@ export default class Player extends Shape {
 		}
 		if (game.keys.has(" ")) {
 			let fired = this.bulletPool.fire();
-			if(fired){
-				game.events.emit("PLAYER_SHOOT", null)
+			if (fired) {
+				game.events.emit("PLAYER_SHOOT", null);
 			}
-
 		}
 
 		this.bulletPool.update(game);
@@ -92,21 +77,28 @@ export default class Player extends Shape {
 		// ctx.drawImage(this.image, this.spritesPos[this.direction].w, this.spritesPos[this.direction].h,this.size.w, this.size.h, this.pos.x, this.pos.y, this.size.w, this.size.h)
 		// ctx.fillStyle ="green"
 		// ctx.fillRect(this.pos.x, this.pos.y, this.size.w, this.size.h);
-		ctx.drawImage(this.image, this.pos.x, this.pos.y-2, this.size.w, this.size.h);
+		ctx.drawImage(
+			this.image,
+			this.pos.x,
+			this.pos.y - 2,
+			this.size.w,
+			this.size.h,
+		);
 		ctx.restore();
 		this.bulletPool.draw(ctx);
 	}
 
-	onCollision(object: GameObject, game:Game) {
+	onCollision(object: GameObject, game: Game) {
 		if (object instanceof Astroid) {
-			this.updateHealth(this.health - object.getDamage() );
-			game.events.emit("PLAYER_DAMAGED", null)
+			let damage =
+				object.getDamage() - object.getDamage() * this.useArmorAttribute();
+			this.updateHealth(this.health - damage);
+			game.events.emit("PLAYER_DAMAGED", null);
 		}
 	}
 
 	tryMoveLeft(_: Game) {
-		console.log("left?");
-		this.rotation = this.rotation - (this.speed % 360);
+		this.rotation = (this.rotation - this.speed) % 360;
 	}
 
 	tryMoveRight(_: Game) {
@@ -115,30 +107,47 @@ export default class Player extends Shape {
 
 	reset() {
 		this.rotation = 0;
-		this.updateHealth(this.startHealth);
-		this.updateMoney(0)
+		this.updateHealth(this.startHealth + this.useHealthAttribute());
+		this.updateMoney(0);
 	}
 
-	updateHealth(health:number) {
-		this.health = health
+	updateHealth(health: number) {
+		this.health = health;
 		PlayerStats.update((stats: PlayerStatsT) => {
-			stats.health = this.health;
+			stats.health =
+				this.health / (this.startHealth + this.useHealthAttribute());
 			return stats;
 		});
 	}
 
-	incMoney = ()=> {
+	incMoney = () => {
 		this.updateMoney(this.money + 10);
-	}
+	};
 
 	//this is a callback so it needs to be an arrow fn
-	updateMoney = (money:number) => {
-		this.money = money
+	updateMoney = (money: number) => {
+		this.money = money;
 		PlayerStats.update((stats: PlayerStatsT) => {
 			stats.money = this.money;
 			return stats;
 		});
 	};
 
-
+	loadAttributes() {
+		ShipUpgrades.subscribe(value =>{
+			this.attributes = value
+		});
+		console.log(this.attributes)
+		this.bulletPool.loadAttributes({
+			cooldown: this.attributes.cooldown,
+			damage: this.attributes.damage,
+		});
+	}
+	useHealthAttribute() {
+		return this.attributes.health.value ?? 0;
+	}
+	useArmorAttribute() {
+		return this.attributes.armor.value ?? 0;
+	}
 }
+

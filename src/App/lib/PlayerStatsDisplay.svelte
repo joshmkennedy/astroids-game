@@ -1,13 +1,14 @@
 <script lang='ts'>
 	import {PlayerStats} from "../store"
+    import HealthBar from "./HealthBar.svelte";
 </script>
-		<div class="flex text-right flex-col gap-1 font-medium">
+		<div class="flex text-right flex-col gap-1 mt-5 mr-1 font-medium">
 			<div class="">
-				<progress value={($PlayerStats.health / 100).toFixed(2).toString()} />
+				<HealthBar value={$PlayerStats.health} />
 				<span>: Health</span>
 			</div>
 			<div class="">
-				<span class="font-bold font-mono">${$PlayerStats.money.toString()}</span
+				<span class="font-bold font-mono">${$PlayerStats.money.toFixed(2).toString()}</span
 				>
 			</div>
 		</div>

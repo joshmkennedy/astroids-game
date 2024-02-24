@@ -20,8 +20,8 @@ export default class GameArea {
 			this.bgImage,
 			this.pos.x,
 			this.pos.y,
-			this.size.w,
-			this.size.h,
+			this.size.w + 100,
+			this.size.h + 100,
 		);
 	}
 }

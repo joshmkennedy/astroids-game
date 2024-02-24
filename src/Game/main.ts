@@ -6,7 +6,7 @@ import AstroidField from "./AstroidField";
 import BulletPool from "./bulletPool";
 
 export default function createGame(canvas: HTMLCanvasElement):Game{
-	const mapSize = { w: canvas.height, h: canvas.height };
+	const mapSize = { w: canvas.width, h: canvas.height };
 	let astroidField = new AstroidField();
 	let player = new Player()
 	let bulletPool = new BulletPool(player)

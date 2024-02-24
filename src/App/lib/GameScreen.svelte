@@ -1,26 +1,37 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { navigate  } from "../store";
+	import { PlayerStats, navigate } from "../store";
 	import GameScreenControls from "./GameScreenControls.svelte";
 	import Game from "../../Game/game";
 
 	import createGame from "../../Game/main";
-    import PlayerStatsDisplay from "./PlayerStatsDisplay.svelte";
-    import LooseScreen from "./LooseScreen.svelte";
+	import PlayerStatsDisplay from "./PlayerStatsDisplay.svelte";
+	import LooseScreen from "./LooseScreen.svelte";
+
+	import EventBorderIndicator from "./EventBorderIndicator.svelte";
+  import Bank from "../../storage/bank";
+
 	let game: Game;
 	let canvasEl: HTMLCanvasElement;
 	let winHeight = window.innerHeight;
+
+	let showDamageHappen: () => void;
+	function addListeners(game: Game) {
+		game.events.subscribe("PLAYER_DESTROYED", onLoose);
+		game.events.subscribe("PLAYER_DAMAGED", showDamageHappen);
+	}
 	onMount(() => {
-		canvasEl.width = winHeight;
-		canvasEl.height = winHeight;
+		const { width, height } = canvasEl.getBoundingClientRect();
+		canvasEl.width = width;
+		canvasEl.height = height;
 		game = createGame(canvasEl);
-		game.events.subscribe("PLAYER_DESTROYED", showLooseOverlay);
+		addListeners(game);
 		game.start();
 	});
 
 	let playerDied = false;
-	function showLooseOverlay() {
-		console.log("Player died")
+	function onLoose() {
+		Bank.increaseMoney($PlayerStats.money);
 		playerDied = true;
 	}
 
@@ -48,36 +59,41 @@
 		playerDied = false;
 		if (game instanceof Game) {
 			game.restart();
-			game.events.subscribe("PLAYER_DESTROYED", showLooseOverlay)
+			addListeners(game);
 		}
 		canvasEl.focus();
 	}
-	function toggleSound(){
-		if(game instanceof Game){
-			if(game.soundboard.isOn){
-				game.soundboard.turnOff()
-			}else{
-				game.soundboard.turnOn()
+	function toggleSound() {
+		if (game instanceof Game) {
+			if (game.soundboard.isOn) {
+				game.soundboard.turnOff();
+			} else {
+				game.soundboard.turnOn();
 			}
 		}
 		canvasEl.focus();
 	}
 </script>
 
-<div class="fixed translate-x-[-50%] left-[50%]" style={`width:${winHeight}px; height:${winHeight}px`}>
-	<div
-		class="z-10 absolute top-0 left-0 text-white flex justify-between w-full font-bold"
-	>
-		<GameScreenControls { toggleSound } {play} {pause} {restart} {quit} />
-		<PlayerStatsDisplay/>
+<div
+	class="fixed translate-x-[-50%] left-[50%] p-5"
+	style={`width:${winHeight}px; height:${winHeight}px`}
+>
+	<div class="relative w-full h-full">
+		<div
+			class="z-10 absolute top-0 left-0 text-white flex justify-between w-full font-bold px-2"
+		>
+			<GameScreenControls {toggleSound} {play} {pause} {restart} {quit} />
+			<PlayerStatsDisplay />
+		</div>
+		<canvas
+			tabindex="-1"
+			class="absolute shadow-2xl shadow-cyan-800 focus:outline-0 inset-0 w-full h-full"
+			bind:this={canvasEl}
+		/>
 	</div>
-
-	<canvas
-		tabindex="-1"
-		class="absolute focus:outline-0 inset-0 w-full h-full"
-		bind:this={canvasEl}
-	/>
-	{#if playerDied }
-		<LooseScreen {restart} {quit}/>
+	<EventBorderIndicator bind:showDamageHappen />
+	{#if playerDied}
+		<LooseScreen {restart} {quit} />
 	{/if}
 </div>

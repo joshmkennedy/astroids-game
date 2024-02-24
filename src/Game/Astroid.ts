@@ -35,23 +35,21 @@ export default class Astroid extends Shape {
 			this.pos.x < -400 ||
 			this.pos.y < -400
 		) {
-			this.reset()
+			this.reset();
 		}
 		if (this.health <= 0) {
 			this.reset();
-			game.events.emit("ASTROID_DESTROYED", this.size )
+			game.events.emit("ASTROID_DESTROYED", this.size);
 		}
 	}
 	draw(ctx: CanvasRenderingContext2D) {
 		if (this.isActive) {
 			this.rotateShape(ctx);
-			ctx.drawImage(
-				this.image,
-				this.pos.x,
-				this.pos.y,
-				this.size.w,
-				this.size.h,
-			);
+
+			let astroidWidth = this.size.w + 20;
+			let x = this.pos.x + this.size.w / 2 - astroidWidth / 2;
+			let y = this.pos.y + this.size.h / 2 - astroidWidth / 2;
+			ctx.drawImage(this.image, x, y, astroidWidth, astroidWidth);
 			ctx.restore();
 		}
 	}
