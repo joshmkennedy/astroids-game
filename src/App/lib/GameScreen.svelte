@@ -55,6 +55,7 @@
 		}
 		navigate("Start");
 	}
+
 	function restart() {
 		playerDied = false;
 		if (game instanceof Game) {
@@ -63,6 +64,7 @@
 		}
 		canvasEl.focus();
 	}
+
 	function toggleSound() {
 		if (game instanceof Game) {
 			if (game.soundboard.isOn) {

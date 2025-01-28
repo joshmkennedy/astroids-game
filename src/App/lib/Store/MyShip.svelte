@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Level, Shop, ShopCategories, UpgradeIds } from "../../../Shop";
+	import { Level, ShopCategories, UpgradeIds } from "../../../Shop";
 	import { CategorizedPurchasedUpgrades } from "../../../storage/purchases";
 	import ShipAttributeStore, {
 		ShipUpgrades,

@@ -4,7 +4,7 @@ import type Game from "./game";
 import { GameObject } from "./gameObject";
 import Shape from "./Shape";
 import { PlayerStats, PlayerStatsT } from "../App/store";
-import { ShipUpgradesT,ShipUpgrades } from "../storage/shipAttributes";
+import { ShipUpgradesT,ShipUpgrades, ShipConfigType } from "../storage/shipAttributes";
 
 export default class Player extends Shape {
 	direction: "left" | "right" | "up" | "down";
@@ -16,8 +16,9 @@ export default class Player extends Shape {
 	bulletPool: BulletPool;
 	money: number;
 	attributes: ShipUpgradesT
-	constructor() {
+	constructor(config:ShipConfigType) {
 		super();
+		console.log(config)
 		//these are base attributes all object will probably need
 		this.pos = { x: 10, y: 100 };
 		this.size = { w: 40, h: 40 };
@@ -26,9 +27,10 @@ export default class Player extends Shape {
 		this.speed = 3;
 		this.direction = "right";
 		this.rotation = 0;
-		this.bulletPool = new BulletPool(this);
+		this.bulletPool = new BulletPool(this, {damage:config.damage, cooldown:config.cooldown});
 		this.image = new Image();
 		this.image.src = "/sprites/ship1.png";
+		this.startHealth = config.health
 		this.health = this.startHealth;
 		this.money = 0;
 		this.attributes = {} as ShipUpgradesT;

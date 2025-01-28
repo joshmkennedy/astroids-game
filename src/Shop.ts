@@ -4,6 +4,7 @@ export type Level = {
   name: string;
   value: number;
   cost: number;
+  requires?: readonly UpgradeIds[];
 };
 
 export type UpgradeIds =
@@ -21,6 +22,7 @@ export type UpgradeIds =
   | "damage_lvl_3";
 
 export type ShopCategories = "cooldown" | "damage" | "armor" | "health";
+
 export type CategoryType = {
   id: ShopCategories;
   name: string;
@@ -79,6 +81,7 @@ export const Shop: ShopType = {
       value: 0.4,
       cost: 3_500,
       category: "cooldown",
+      requires: ["cooldown_lvl_1"],
     },
     cooldown_lvl_3: {
       id: "cooldown_lvl_3",
@@ -86,6 +89,7 @@ export const Shop: ShopType = {
       value: 0.6,
       cost: 5_700,
       category: "cooldown",
+      requires: ["cooldown_lvl_1", "cooldown_lvl_2"],
     },
     armor_lvl_1: {
       id: "armor_lvl_1",
@@ -100,6 +104,7 @@ export const Shop: ShopType = {
       value: 0.25,
       cost: 2_000,
       category: "armor",
+      requires: ["armor_lvl_1"],
     },
     armor_lvl_3: {
       id: "armor_lvl_3",
@@ -107,6 +112,7 @@ export const Shop: ShopType = {
       value: 0.5,
       cost: 3_000,
       category: "armor",
+      requires: ["armor_lvl_1", "armor_lvl_2"],
     },
     health_lvl_1: {
       id: "health_lvl_1",
@@ -121,6 +127,7 @@ export const Shop: ShopType = {
       value: 55,
       cost: 3_000,
       category: "health",
+      requires: ["health_lvl_1"],
     },
     health_lvl_3: {
       id: "health_lvl_3",
@@ -128,6 +135,7 @@ export const Shop: ShopType = {
       value: 100,
       cost: 5_000,
       category: "health",
+      requires: ["health_lvl_1", "health_lvl_2"],
     },
     damage_lvl_1: {
       id: "damage_lvl_1",
@@ -142,6 +150,7 @@ export const Shop: ShopType = {
       value: 0.75,
       cost: 4_100,
       category: "damage",
+      requires: ["damage_lvl_1"],
     },
     damage_lvl_3: {
       id: "damage_lvl_3",
@@ -149,6 +158,36 @@ export const Shop: ShopType = {
       value: 1.5,
       cost: 6_000,
       category: "damage",
+      requires: ["damage_lvl_1", "damage_lvl_2"],
     },
   },
 } as const;
+
+
+export function loadNextPurchaseableUpgrade(
+		atts: UpgradeIds[],
+		cat: ShopCategories
+	): Level | null {
+		let pastCategoryPurchases = atts.filter((att: UpgradeIds) =>
+			att.startsWith(cat)
+		);
+		let upgradeIds = Object.keys(Shop.upgrades) as UpgradeIds[];
+		return upgradeIds.reduce((prev: null | Level, key: UpgradeIds) => {
+			if (!key.startsWith(cat)) return prev; // filter for upgrades in category
+			if (pastCategoryPurchases.includes(key)) return prev;
+			let upgrade = Shop.upgrades[key] as Level;
+			if (
+				!upgrade.requires ||
+				upgrade.requires.every((requiredUpgrade) =>
+					pastCategoryPurchases.includes(requiredUpgrade)
+				)
+			) {
+				if (!prev) return upgrade;
+				let prevLevel = +prev.id.split("_lvl_")[1];
+				let curLevel = +key.split("_lvl_")[1];
+				return curLevel > prevLevel ? upgrade : prev;
+			}
+			return prev;
+		}, null as null | Level);
+	}
+

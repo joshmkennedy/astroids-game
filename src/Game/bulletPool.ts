@@ -1,4 +1,4 @@
-import { ShipUpgradesT } from "../storage/shipAttributes";
+import { ShipConfigType, ShipUpgradesT } from "../storage/shipAttributes";
 import Bullet from "./Bullet";
 import Game from "./game";
 import Player from "./player";
@@ -9,13 +9,15 @@ export default class BulletPool {
   player: Player;
   pool: Bullet[];
   cooldown: number;
+	damage:number;
   canFire: boolean;
   attributes: BulletPoolAttributes;
-  constructor(player: Player) {
+  constructor(player: Player, config:Pick<ShipConfigType, "cooldown"|"damage">) {
     this.size = 100;
     this.player = player;
     this.pool = this.createPool();
-    this.cooldown = 200;
+		this.damage = config.damage;
+    this.cooldown = config.cooldown;
     this.canFire = true;
     this.attributes = {} as BulletPoolAttributes;
   }
@@ -65,9 +67,8 @@ export default class BulletPool {
     for (let bullet of this.pool) {
       if (!bullet.isActive) {
         this.startCoolDown();
-        bullet.damage +=
-          bullet.baseDamage * (this.attributes.damage.value ?? 0);
-				console.log(bullet.damage)
+        bullet.damage =
+          this.damage + this.damage * (this.attributes.damage.value ?? 0);
         bullet.shoot(this.bulletStartPos(), this.player.rotation);
         break;
       }

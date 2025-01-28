@@ -1,5 +1,5 @@
 import { derived } from "svelte/store";
-import { Shop, UpgradeIds,ShopCategories, Level } from "../Shop";
+import { Shop, UpgradeIds, ShopCategories, Level } from "../Shop";
 import { newPersitentStore } from "./persistentStorage";
 
 export type ShipAttributeStoreT = Record<ShopCategories, UpgradeIds | undefined>
@@ -16,11 +16,11 @@ function newShipAttributeStore() {
 		subscribe,
 		update,
 		set,
-		setAttribute(key:ShopCategories, id:UpgradeIds){
-			update(store=>{
+		setAttribute(key: ShopCategories, id: UpgradeIds) {
+			update(store => {
 				store[key] = id
 				return store
-			})	
+			})
 		},
 	};
 }
@@ -28,15 +28,24 @@ function newShipAttributeStore() {
 const ShipAttributeStore = newShipAttributeStore();
 export default ShipAttributeStore;
 
-export type ShipUpgradesT = Record<ShopCategories,Level>
+export type ShipUpgradesT = Record<ShopCategories, Level>
 export const ShipUpgrades = derived(ShipAttributeStore, (store) => {
-	return (Object.keys(store) as ShopCategories[]).reduce(function(acc, key: ShopCategories ) {
+	return (Object.keys(store) as ShopCategories[]).reduce(function(acc, key: ShopCategories) {
 		//@ts-ignore
-		let level:Level = {value:0, id:"", cost:0, name:"<Empty Slot>",category:key } as Level
-		if(store[key]){
-			level = Shop.upgrades[store[key] as UpgradeIds] 
+		let level: Level = { value: 0, id: "", cost: 0, name: "<Empty Slot>", category: key } as Level
+		if (store[key]) {
+			level = Shop.upgrades[store[key] as UpgradeIds]
 		}
 		acc[key] = level
 		return acc
 	}, {} as ShipUpgradesT)
 })
+
+export type ShipConfigType = Record<ShopCategories, number>
+export const ShipBaseConfig = {
+	health: 100,
+	armor: 0,
+	cooldown:200,
+	damage:25,
+}
+
